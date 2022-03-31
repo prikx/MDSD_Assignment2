@@ -3,17 +3,17 @@
  */
 package dk.sdu.mmmi.mdsd.math.impl;
 
-import dk.sdu.mmmi.mdsd.math.Div;
 import dk.sdu.mmmi.mdsd.math.Exp;
-import dk.sdu.mmmi.mdsd.math.ExpOp;
+import dk.sdu.mmmi.mdsd.math.Let;
 import dk.sdu.mmmi.mdsd.math.MathExp;
 import dk.sdu.mmmi.mdsd.math.MathFactory;
 import dk.sdu.mmmi.mdsd.math.MathPackage;
 import dk.sdu.mmmi.mdsd.math.Minus;
-import dk.sdu.mmmi.mdsd.math.Mult;
 import dk.sdu.mmmi.mdsd.math.Parenthesis;
 import dk.sdu.mmmi.mdsd.math.Plus;
 import dk.sdu.mmmi.mdsd.math.Primary;
+import dk.sdu.mmmi.mdsd.math.Statement;
+import dk.sdu.mmmi.mdsd.math.Term;
 import dk.sdu.mmmi.mdsd.math.VariableUse;
 
 import org.eclipse.emf.ecore.EClass;
@@ -77,16 +77,16 @@ public class MathFactoryImpl extends EFactoryImpl implements MathFactory
     switch (eClass.getClassifierID())
     {
       case MathPackage.MATH_EXP: return createMathExp();
+      case MathPackage.STATEMENT: return createStatement();
       case MathPackage.EXP: return createExp();
-      case MathPackage.EXP_OP: return createExpOp();
       case MathPackage.PRIMARY: return createPrimary();
-      case MathPackage.PARENTHESIS: return createParenthesis();
+      case MathPackage.LET: return createLet();
       case MathPackage.NUMBER: return createNumber();
+      case MathPackage.PARENTHESIS: return createParenthesis();
       case MathPackage.VARIABLE_USE: return createVariableUse();
       case MathPackage.PLUS: return createPlus();
       case MathPackage.MINUS: return createMinus();
-      case MathPackage.MULT: return createMult();
-      case MathPackage.DIV: return createDiv();
+      case MathPackage.TERM: return createTerm();
       default:
         throw new IllegalArgumentException("The class '" + eClass.getName() + "' is not a valid classifier");
     }
@@ -110,10 +110,10 @@ public class MathFactoryImpl extends EFactoryImpl implements MathFactory
    * @generated
    */
   @Override
-  public Exp createExp()
+  public Statement createStatement()
   {
-    ExpImpl exp = new ExpImpl();
-    return exp;
+    StatementImpl statement = new StatementImpl();
+    return statement;
   }
 
   /**
@@ -122,10 +122,10 @@ public class MathFactoryImpl extends EFactoryImpl implements MathFactory
    * @generated
    */
   @Override
-  public ExpOp createExpOp()
+  public Exp createExp()
   {
-    ExpOpImpl expOp = new ExpOpImpl();
-    return expOp;
+    ExpImpl exp = new ExpImpl();
+    return exp;
   }
 
   /**
@@ -146,10 +146,10 @@ public class MathFactoryImpl extends EFactoryImpl implements MathFactory
    * @generated
    */
   @Override
-  public Parenthesis createParenthesis()
+  public Let createLet()
   {
-    ParenthesisImpl parenthesis = new ParenthesisImpl();
-    return parenthesis;
+    LetImpl let = new LetImpl();
+    return let;
   }
 
   /**
@@ -162,6 +162,18 @@ public class MathFactoryImpl extends EFactoryImpl implements MathFactory
   {
     NumberImpl number = new NumberImpl();
     return number;
+  }
+
+  /**
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   */
+  @Override
+  public Parenthesis createParenthesis()
+  {
+    ParenthesisImpl parenthesis = new ParenthesisImpl();
+    return parenthesis;
   }
 
   /**
@@ -206,22 +218,10 @@ public class MathFactoryImpl extends EFactoryImpl implements MathFactory
    * @generated
    */
   @Override
-  public Mult createMult()
+  public Term createTerm()
   {
-    MultImpl mult = new MultImpl();
-    return mult;
-  }
-
-  /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
-   * @generated
-   */
-  @Override
-  public Div createDiv()
-  {
-    DivImpl div = new DivImpl();
-    return div;
+    TermImpl term = new TermImpl();
+    return term;
   }
 
   /**

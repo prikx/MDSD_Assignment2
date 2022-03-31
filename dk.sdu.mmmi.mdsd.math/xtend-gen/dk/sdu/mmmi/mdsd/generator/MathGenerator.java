@@ -3,19 +3,22 @@
  */
 package dk.sdu.mmmi.mdsd.generator;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.Iterators;
-import dk.sdu.mmmi.mdsd.math.Div;
 import dk.sdu.mmmi.mdsd.math.Exp;
-import dk.sdu.mmmi.mdsd.math.ExpOp;
+import dk.sdu.mmmi.mdsd.math.Let;
 import dk.sdu.mmmi.mdsd.math.MathExp;
 import dk.sdu.mmmi.mdsd.math.Minus;
-import dk.sdu.mmmi.mdsd.math.Mult;
+import dk.sdu.mmmi.mdsd.math.Parenthesis;
 import dk.sdu.mmmi.mdsd.math.Plus;
-import dk.sdu.mmmi.mdsd.math.Primary;
+import dk.sdu.mmmi.mdsd.math.Statement;
+import dk.sdu.mmmi.mdsd.math.Term;
+import dk.sdu.mmmi.mdsd.math.VariableUse;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.JOptionPane;
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.xtext.generator.AbstractGenerator;
 import org.eclipse.xtext.generator.IFileSystemAccess2;
@@ -37,54 +40,92 @@ public class MathGenerator extends AbstractGenerator {
     this.displayPanel(result);
   }
   
-  public static Map<String, Integer> compute(final MathExp math) {
-    MathGenerator.computeExp(math.getExp());
+  public static Map<String, Integer> compute(final MathExp mathExp) {
+    EList<Statement> _math = mathExp.getMath();
+    for (final Statement variable : _math) {
+      MathGenerator.variables.put(variable.getName(), Integer.valueOf(MathGenerator.computeExp(variable.getExp())));
+    }
     return MathGenerator.variables;
   }
   
-  public static int computeExp(final Exp exp) {
-    int _xblockexpression = (int) 0;
-    {
-      final int left = MathGenerator.computePrim(exp.getLeft());
-      int _switchResult = (int) 0;
-      ExpOp _operator = exp.getOperator();
-      boolean _matched = false;
-      if (_operator instanceof Plus) {
-        _matched=true;
-        int _computeExp = MathGenerator.computeExp(exp.getRight());
-        _switchResult = (left + _computeExp);
-      }
-      if (!_matched) {
-        if (_operator instanceof Minus) {
-          _matched=true;
-          int _computeExp = MathGenerator.computeExp(exp.getRight());
-          _switchResult = (left - _computeExp);
-        }
-      }
-      if (!_matched) {
-        if (_operator instanceof Mult) {
-          _matched=true;
-          int _computeExp = MathGenerator.computeExp(exp.getRight());
-          _switchResult = (left * _computeExp);
-        }
-      }
-      if (!_matched) {
-        if (_operator instanceof Div) {
-          _matched=true;
-          int _computeExp = MathGenerator.computeExp(exp.getRight());
-          _switchResult = (left / _computeExp);
-        }
-      }
-      if (!_matched) {
-        _switchResult = left;
-      }
-      _xblockexpression = _switchResult;
+  /**
+   * def static compute(MathExp e) {
+   * variables.put(e.name, e.exp.computeExp)
+   * return variables
+   * }
+   */
+  public static int computeExp(final Exp e) {
+    int _switchResult = (int) 0;
+    boolean _matched = false;
+    if (e instanceof VariableUse) {
+      _matched=true;
+      _switchResult = MathGenerator.computeExp(((VariableUse) e).getRef().getExp());
     }
-    return _xblockexpression;
-  }
-  
-  public static int computePrim(final Primary factor) {
-    return 87;
+    if (!_matched) {
+      if (e instanceof Minus) {
+        _matched=true;
+        int _computeExp = MathGenerator.computeExp(((Minus)e).getLeft());
+        int _computeExp_1 = MathGenerator.computeExp(((Minus)e).getRight());
+        _switchResult = ((((Integer) Integer.valueOf(_computeExp))).intValue() - (((Integer) Integer.valueOf(_computeExp_1))).intValue());
+      }
+    }
+    if (!_matched) {
+      if (e instanceof Plus) {
+        _matched=true;
+        int _computeExp = MathGenerator.computeExp(((Plus)e).getLeft());
+        int _computeExp_1 = MathGenerator.computeExp(((Plus)e).getRight());
+        _switchResult = ((((Integer) Integer.valueOf(_computeExp))).intValue() + (((Integer) Integer.valueOf(_computeExp_1))).intValue());
+      }
+    }
+    if (!_matched) {
+      if (e instanceof Term) {
+        _matched=true;
+        int _xblockexpression = (int) 0;
+        {
+          int _computeExp = MathGenerator.computeExp(((Term)e).getLeft());
+          final Integer left = ((Integer) Integer.valueOf(_computeExp));
+          int _computeExp_1 = MathGenerator.computeExp(((Term)e).getRight());
+          final Integer right = ((Integer) Integer.valueOf(_computeExp_1));
+          int _xifexpression = (int) 0;
+          String _op = ((Term)e).getOp();
+          boolean _equals = Objects.equal(_op, "*");
+          if (_equals) {
+            _xifexpression = ((left).intValue() * (right).intValue());
+          } else {
+            _xifexpression = ((left).intValue() / (right).intValue());
+          }
+          _xblockexpression = _xifexpression;
+        }
+        _switchResult = _xblockexpression;
+      }
+    }
+    if (!_matched) {
+      if (e instanceof dk.sdu.mmmi.mdsd.math.Number) {
+        _matched=true;
+        _switchResult = ((dk.sdu.mmmi.mdsd.math.Number) e).getValue();
+      }
+    }
+    if (!_matched) {
+      if (e instanceof Let) {
+        _matched=true;
+        int _xblockexpression = (int) 0;
+        {
+          MathGenerator.variables.put(((Let) e).getName(), Integer.valueOf(MathGenerator.computeExp(((Let) e).getInExp())));
+          _xblockexpression = MathGenerator.computeExp(((Let) e).getLetExp());
+        }
+        _switchResult = _xblockexpression;
+      }
+    }
+    if (!_matched) {
+      if (e instanceof Parenthesis) {
+        _matched=true;
+        _switchResult = MathGenerator.computeExp(((Parenthesis)e).getExp());
+      }
+    }
+    if (!_matched) {
+      _switchResult = ((dk.sdu.mmmi.mdsd.math.Number) e).getValue();
+    }
+    return _switchResult;
   }
   
   public void displayPanel(final Map<String, Integer> result) {

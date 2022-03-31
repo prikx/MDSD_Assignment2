@@ -3,8 +3,8 @@
  */
 package dk.sdu.mmmi.mdsd.math.impl;
 
-import dk.sdu.mmmi.mdsd.math.MathExp;
 import dk.sdu.mmmi.mdsd.math.MathPackage;
+import dk.sdu.mmmi.mdsd.math.Statement;
 import dk.sdu.mmmi.mdsd.math.VariableUse;
 
 import org.eclipse.emf.common.notify.Notification;
@@ -27,7 +27,7 @@ import org.eclipse.emf.ecore.impl.ENotificationImpl;
  *
  * @generated
  */
-public class VariableUseImpl extends PrimaryImpl implements VariableUse
+public class VariableUseImpl extends ExpImpl implements VariableUse
 {
   /**
    * The cached value of the '{@link #getRef() <em>Ref</em>}' reference.
@@ -37,7 +37,7 @@ public class VariableUseImpl extends PrimaryImpl implements VariableUse
    * @generated
    * @ordered
    */
-  protected MathExp ref;
+  protected Statement ref;
 
   /**
    * <!-- begin-user-doc -->
@@ -66,12 +66,12 @@ public class VariableUseImpl extends PrimaryImpl implements VariableUse
    * @generated
    */
   @Override
-  public MathExp getRef()
+  public Statement getRef()
   {
     if (ref != null && ref.eIsProxy())
     {
       InternalEObject oldRef = (InternalEObject)ref;
-      ref = (MathExp)eResolveProxy(oldRef);
+      ref = (Statement)eResolveProxy(oldRef);
       if (ref != oldRef)
       {
         if (eNotificationRequired())
@@ -86,7 +86,7 @@ public class VariableUseImpl extends PrimaryImpl implements VariableUse
    * <!-- end-user-doc -->
    * @generated
    */
-  public MathExp basicGetRef()
+  public Statement basicGetRef()
   {
     return ref;
   }
@@ -97,9 +97,9 @@ public class VariableUseImpl extends PrimaryImpl implements VariableUse
    * @generated
    */
   @Override
-  public void setRef(MathExp newRef)
+  public void setRef(Statement newRef)
   {
-    MathExp oldRef = ref;
+    Statement oldRef = ref;
     ref = newRef;
     if (eNotificationRequired())
       eNotify(new ENotificationImpl(this, Notification.SET, MathPackage.VARIABLE_USE__REF, oldRef, ref));
@@ -133,7 +133,7 @@ public class VariableUseImpl extends PrimaryImpl implements VariableUse
     switch (featureID)
     {
       case MathPackage.VARIABLE_USE__REF:
-        setRef((MathExp)newValue);
+        setRef((Statement)newValue);
         return;
     }
     super.eSet(featureID, newValue);
@@ -150,7 +150,7 @@ public class VariableUseImpl extends PrimaryImpl implements VariableUse
     switch (featureID)
     {
       case MathPackage.VARIABLE_USE__REF:
-        setRef((MathExp)null);
+        setRef((Statement)null);
         return;
     }
     super.eUnset(featureID);

@@ -4,14 +4,14 @@
 package dk.sdu.mmmi.mdsd.serializer;
 
 import com.google.inject.Inject;
-import dk.sdu.mmmi.mdsd.math.Div;
-import dk.sdu.mmmi.mdsd.math.Exp;
+import dk.sdu.mmmi.mdsd.math.Let;
 import dk.sdu.mmmi.mdsd.math.MathExp;
 import dk.sdu.mmmi.mdsd.math.MathPackage;
 import dk.sdu.mmmi.mdsd.math.Minus;
-import dk.sdu.mmmi.mdsd.math.Mult;
 import dk.sdu.mmmi.mdsd.math.Parenthesis;
 import dk.sdu.mmmi.mdsd.math.Plus;
+import dk.sdu.mmmi.mdsd.math.Statement;
+import dk.sdu.mmmi.mdsd.math.Term;
 import dk.sdu.mmmi.mdsd.math.VariableUse;
 import dk.sdu.mmmi.mdsd.services.MathGrammarAccess;
 import java.util.Set;
@@ -39,20 +39,14 @@ public class MathSemanticSequencer extends AbstractDelegatingSemanticSequencer {
 		Set<Parameter> parameters = context.getEnabledBooleanParameters();
 		if (epackage == MathPackage.eINSTANCE)
 			switch (semanticObject.eClass().getClassifierID()) {
-			case MathPackage.DIV:
-				sequence_ExpOp(context, (Div) semanticObject); 
-				return; 
-			case MathPackage.EXP:
-				sequence_Exp(context, (Exp) semanticObject); 
+			case MathPackage.LET:
+				sequence_Let(context, (Let) semanticObject); 
 				return; 
 			case MathPackage.MATH_EXP:
 				sequence_MathExp(context, (MathExp) semanticObject); 
 				return; 
 			case MathPackage.MINUS:
-				sequence_ExpOp(context, (Minus) semanticObject); 
-				return; 
-			case MathPackage.MULT:
-				sequence_ExpOp(context, (Mult) semanticObject); 
+				sequence_PlusMinus(context, (Minus) semanticObject); 
 				return; 
 			case MathPackage.NUMBER:
 				sequence_Number(context, (dk.sdu.mmmi.mdsd.math.Number) semanticObject); 
@@ -61,7 +55,13 @@ public class MathSemanticSequencer extends AbstractDelegatingSemanticSequencer {
 				sequence_Parenthesis(context, (Parenthesis) semanticObject); 
 				return; 
 			case MathPackage.PLUS:
-				sequence_ExpOp(context, (Plus) semanticObject); 
+				sequence_PlusMinus(context, (Plus) semanticObject); 
+				return; 
+			case MathPackage.STATEMENT:
+				sequence_Statement(context, (Statement) semanticObject); 
+				return; 
+			case MathPackage.TERM:
+				sequence_Term(context, (Term) semanticObject); 
 				return; 
 			case MathPackage.VARIABLE_USE:
 				sequence_VariableUse(context, (VariableUse) semanticObject); 
@@ -74,70 +74,33 @@ public class MathSemanticSequencer extends AbstractDelegatingSemanticSequencer {
 	/**
 	 * <pre>
 	 * Contexts:
-	 *     ExpOp returns Div
+	 *     Exp returns Let
+	 *     PlusMinus returns Let
+	 *     PlusMinus.Plus_1_0_0_0 returns Let
+	 *     PlusMinus.Minus_1_0_1_0 returns Let
+	 *     Term returns Let
+	 *     Term.Term_1_0_0 returns Let
+	 *     Primary returns Let
+	 *     Let returns Let
 	 *
 	 * Constraint:
-	 *     {Div}
+	 *     (name=ID letExp=Exp inExp=Exp)
 	 * </pre>
 	 */
-	protected void sequence_ExpOp(ISerializationContext context, Div semanticObject) {
-		genericSequencer.createSequence(context, semanticObject);
-	}
-	
-	
-	/**
-	 * <pre>
-	 * Contexts:
-	 *     ExpOp returns Minus
-	 *
-	 * Constraint:
-	 *     {Minus}
-	 * </pre>
-	 */
-	protected void sequence_ExpOp(ISerializationContext context, Minus semanticObject) {
-		genericSequencer.createSequence(context, semanticObject);
-	}
-	
-	
-	/**
-	 * <pre>
-	 * Contexts:
-	 *     ExpOp returns Mult
-	 *
-	 * Constraint:
-	 *     {Mult}
-	 * </pre>
-	 */
-	protected void sequence_ExpOp(ISerializationContext context, Mult semanticObject) {
-		genericSequencer.createSequence(context, semanticObject);
-	}
-	
-	
-	/**
-	 * <pre>
-	 * Contexts:
-	 *     ExpOp returns Plus
-	 *
-	 * Constraint:
-	 *     {Plus}
-	 * </pre>
-	 */
-	protected void sequence_ExpOp(ISerializationContext context, Plus semanticObject) {
-		genericSequencer.createSequence(context, semanticObject);
-	}
-	
-	
-	/**
-	 * <pre>
-	 * Contexts:
-	 *     Exp returns Exp
-	 *
-	 * Constraint:
-	 *     (left=Number (operator=ExpOp right=Exp)?)
-	 * </pre>
-	 */
-	protected void sequence_Exp(ISerializationContext context, Exp semanticObject) {
-		genericSequencer.createSequence(context, semanticObject);
+	protected void sequence_Let(ISerializationContext context, Let semanticObject) {
+		if (errorAcceptor != null) {
+			if (transientValues.isValueTransient(semanticObject, MathPackage.Literals.LET__NAME) == ValueTransient.YES)
+				errorAcceptor.accept(diagnosticProvider.createFeatureValueMissing(semanticObject, MathPackage.Literals.LET__NAME));
+			if (transientValues.isValueTransient(semanticObject, MathPackage.Literals.LET__LET_EXP) == ValueTransient.YES)
+				errorAcceptor.accept(diagnosticProvider.createFeatureValueMissing(semanticObject, MathPackage.Literals.LET__LET_EXP));
+			if (transientValues.isValueTransient(semanticObject, MathPackage.Literals.LET__IN_EXP) == ValueTransient.YES)
+				errorAcceptor.accept(diagnosticProvider.createFeatureValueMissing(semanticObject, MathPackage.Literals.LET__IN_EXP));
+		}
+		SequenceFeeder feeder = createSequencerFeeder(context, semanticObject);
+		feeder.accept(grammarAccess.getLetAccess().getNameIDTerminalRuleCall_1_0(), semanticObject.getName());
+		feeder.accept(grammarAccess.getLetAccess().getLetExpExpParserRuleCall_3_0(), semanticObject.getLetExp());
+		feeder.accept(grammarAccess.getLetAccess().getInExpExpParserRuleCall_5_0(), semanticObject.getInExp());
+		feeder.finish();
 	}
 	
 	
@@ -147,26 +110,23 @@ public class MathSemanticSequencer extends AbstractDelegatingSemanticSequencer {
 	 *     MathExp returns MathExp
 	 *
 	 * Constraint:
-	 *     (name=ID exp=Exp)
+	 *     math+=Statement+
 	 * </pre>
 	 */
 	protected void sequence_MathExp(ISerializationContext context, MathExp semanticObject) {
-		if (errorAcceptor != null) {
-			if (transientValues.isValueTransient(semanticObject, MathPackage.Literals.MATH_EXP__NAME) == ValueTransient.YES)
-				errorAcceptor.accept(diagnosticProvider.createFeatureValueMissing(semanticObject, MathPackage.Literals.MATH_EXP__NAME));
-			if (transientValues.isValueTransient(semanticObject, MathPackage.Literals.MATH_EXP__EXP) == ValueTransient.YES)
-				errorAcceptor.accept(diagnosticProvider.createFeatureValueMissing(semanticObject, MathPackage.Literals.MATH_EXP__EXP));
-		}
-		SequenceFeeder feeder = createSequencerFeeder(context, semanticObject);
-		feeder.accept(grammarAccess.getMathExpAccess().getNameIDTerminalRuleCall_1_0(), semanticObject.getName());
-		feeder.accept(grammarAccess.getMathExpAccess().getExpExpParserRuleCall_3_0(), semanticObject.getExp());
-		feeder.finish();
+		genericSequencer.createSequence(context, semanticObject);
 	}
 	
 	
 	/**
 	 * <pre>
 	 * Contexts:
+	 *     Exp returns Number
+	 *     PlusMinus returns Number
+	 *     PlusMinus.Plus_1_0_0_0 returns Number
+	 *     PlusMinus.Minus_1_0_1_0 returns Number
+	 *     Term returns Number
+	 *     Term.Term_1_0_0 returns Number
 	 *     Primary returns Number
 	 *     Number returns Number
 	 *
@@ -188,6 +148,12 @@ public class MathSemanticSequencer extends AbstractDelegatingSemanticSequencer {
 	/**
 	 * <pre>
 	 * Contexts:
+	 *     Exp returns Parenthesis
+	 *     PlusMinus returns Parenthesis
+	 *     PlusMinus.Plus_1_0_0_0 returns Parenthesis
+	 *     PlusMinus.Minus_1_0_1_0 returns Parenthesis
+	 *     Term returns Parenthesis
+	 *     Term.Term_1_0_0 returns Parenthesis
 	 *     Primary returns Parenthesis
 	 *     Parenthesis returns Parenthesis
 	 *
@@ -209,11 +175,105 @@ public class MathSemanticSequencer extends AbstractDelegatingSemanticSequencer {
 	/**
 	 * <pre>
 	 * Contexts:
-	 *     Primary returns VariableUse
+	 *     Exp returns Minus
+	 *     PlusMinus returns Minus
+	 *     PlusMinus.Plus_1_0_0_0 returns Minus
+	 *     PlusMinus.Minus_1_0_1_0 returns Minus
+	 *
+	 * Constraint:
+	 *     (left=PlusMinus_Minus_1_0_1_0 right=Term)
+	 * </pre>
+	 */
+	protected void sequence_PlusMinus(ISerializationContext context, Minus semanticObject) {
+		if (errorAcceptor != null) {
+			if (transientValues.isValueTransient(semanticObject, MathPackage.Literals.MINUS__LEFT) == ValueTransient.YES)
+				errorAcceptor.accept(diagnosticProvider.createFeatureValueMissing(semanticObject, MathPackage.Literals.MINUS__LEFT));
+			if (transientValues.isValueTransient(semanticObject, MathPackage.Literals.MINUS__RIGHT) == ValueTransient.YES)
+				errorAcceptor.accept(diagnosticProvider.createFeatureValueMissing(semanticObject, MathPackage.Literals.MINUS__RIGHT));
+		}
+		SequenceFeeder feeder = createSequencerFeeder(context, semanticObject);
+		feeder.accept(grammarAccess.getPlusMinusAccess().getMinusLeftAction_1_0_1_0(), semanticObject.getLeft());
+		feeder.accept(grammarAccess.getPlusMinusAccess().getRightTermParserRuleCall_1_1_0(), semanticObject.getRight());
+		feeder.finish();
+	}
+	
+	
+	/**
+	 * <pre>
+	 * Contexts:
+	 *     Exp returns Plus
+	 *     PlusMinus returns Plus
+	 *     PlusMinus.Plus_1_0_0_0 returns Plus
+	 *     PlusMinus.Minus_1_0_1_0 returns Plus
+	 *
+	 * Constraint:
+	 *     (left=PlusMinus_Plus_1_0_0_0 right=Term)
+	 * </pre>
+	 */
+	protected void sequence_PlusMinus(ISerializationContext context, Plus semanticObject) {
+		if (errorAcceptor != null) {
+			if (transientValues.isValueTransient(semanticObject, MathPackage.Literals.PLUS__LEFT) == ValueTransient.YES)
+				errorAcceptor.accept(diagnosticProvider.createFeatureValueMissing(semanticObject, MathPackage.Literals.PLUS__LEFT));
+			if (transientValues.isValueTransient(semanticObject, MathPackage.Literals.PLUS__RIGHT) == ValueTransient.YES)
+				errorAcceptor.accept(diagnosticProvider.createFeatureValueMissing(semanticObject, MathPackage.Literals.PLUS__RIGHT));
+		}
+		SequenceFeeder feeder = createSequencerFeeder(context, semanticObject);
+		feeder.accept(grammarAccess.getPlusMinusAccess().getPlusLeftAction_1_0_0_0(), semanticObject.getLeft());
+		feeder.accept(grammarAccess.getPlusMinusAccess().getRightTermParserRuleCall_1_1_0(), semanticObject.getRight());
+		feeder.finish();
+	}
+	
+	
+	/**
+	 * <pre>
+	 * Contexts:
+	 *     Statement returns Statement
+	 *
+	 * Constraint:
+	 *     (name=ID exp=Exp)
+	 * </pre>
+	 */
+	protected void sequence_Statement(ISerializationContext context, Statement semanticObject) {
+		if (errorAcceptor != null) {
+			if (transientValues.isValueTransient(semanticObject, MathPackage.Literals.STATEMENT__NAME) == ValueTransient.YES)
+				errorAcceptor.accept(diagnosticProvider.createFeatureValueMissing(semanticObject, MathPackage.Literals.STATEMENT__NAME));
+			if (transientValues.isValueTransient(semanticObject, MathPackage.Literals.STATEMENT__EXP) == ValueTransient.YES)
+				errorAcceptor.accept(diagnosticProvider.createFeatureValueMissing(semanticObject, MathPackage.Literals.STATEMENT__EXP));
+		}
+		SequenceFeeder feeder = createSequencerFeeder(context, semanticObject);
+		feeder.accept(grammarAccess.getStatementAccess().getNameIDTerminalRuleCall_1_0(), semanticObject.getName());
+		feeder.accept(grammarAccess.getStatementAccess().getExpExpParserRuleCall_3_0(), semanticObject.getExp());
+		feeder.finish();
+	}
+	
+	
+	/**
+	 * <pre>
+	 * Contexts:
+	 *     Exp returns Term
+	 *     PlusMinus returns Term
+	 *     PlusMinus.Plus_1_0_0_0 returns Term
+	 *     PlusMinus.Minus_1_0_1_0 returns Term
+	 *     Term returns Term
+	 *     Term.Term_1_0_0 returns Term
+	 *
+	 * Constraint:
+	 *     (left=Term_Term_1_0_0 (op='*' | op='/') right=Primary)
+	 * </pre>
+	 */
+	protected void sequence_Term(ISerializationContext context, Term semanticObject) {
+		genericSequencer.createSequence(context, semanticObject);
+	}
+	
+	
+	/**
+	 * <pre>
+	 * Contexts:
+	 *     Exp returns VariableUse
 	 *     VariableUse returns VariableUse
 	 *
 	 * Constraint:
-	 *     ref=[MathExp|ID]
+	 *     ref=[Statement|ID]
 	 * </pre>
 	 */
 	protected void sequence_VariableUse(ISerializationContext context, VariableUse semanticObject) {
@@ -222,7 +282,7 @@ public class MathSemanticSequencer extends AbstractDelegatingSemanticSequencer {
 				errorAcceptor.accept(diagnosticProvider.createFeatureValueMissing(semanticObject, MathPackage.Literals.VARIABLE_USE__REF));
 		}
 		SequenceFeeder feeder = createSequencerFeeder(context, semanticObject);
-		feeder.accept(grammarAccess.getVariableUseAccess().getRefMathExpIDTerminalRuleCall_0_1(), semanticObject.eGet(MathPackage.Literals.VARIABLE_USE__REF, false));
+		feeder.accept(grammarAccess.getVariableUseAccess().getRefStatementIDTerminalRuleCall_0_1(), semanticObject.eGet(MathPackage.Literals.VARIABLE_USE__REF, false));
 		feeder.finish();
 	}
 	

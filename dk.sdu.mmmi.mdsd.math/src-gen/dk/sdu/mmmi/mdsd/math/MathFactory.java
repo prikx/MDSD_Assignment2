@@ -33,6 +33,15 @@ public interface MathFactory extends EFactory
   MathExp createMathExp();
 
   /**
+   * Returns a new object of class '<em>Statement</em>'.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @return a new object of class '<em>Statement</em>'.
+   * @generated
+   */
+  Statement createStatement();
+
+  /**
    * Returns a new object of class '<em>Exp</em>'.
    * <!-- begin-user-doc -->
    * <!-- end-user-doc -->
@@ -40,15 +49,6 @@ public interface MathFactory extends EFactory
    * @generated
    */
   Exp createExp();
-
-  /**
-   * Returns a new object of class '<em>Exp Op</em>'.
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
-   * @return a new object of class '<em>Exp Op</em>'.
-   * @generated
-   */
-  ExpOp createExpOp();
 
   /**
    * Returns a new object of class '<em>Primary</em>'.
@@ -60,13 +60,13 @@ public interface MathFactory extends EFactory
   Primary createPrimary();
 
   /**
-   * Returns a new object of class '<em>Parenthesis</em>'.
+   * Returns a new object of class '<em>Let</em>'.
    * <!-- begin-user-doc -->
    * <!-- end-user-doc -->
-   * @return a new object of class '<em>Parenthesis</em>'.
+   * @return a new object of class '<em>Let</em>'.
    * @generated
    */
-  Parenthesis createParenthesis();
+  Let createLet();
 
   /**
    * Returns a new object of class '<em>Number</em>'.
@@ -76,6 +76,15 @@ public interface MathFactory extends EFactory
    * @generated
    */
   Number createNumber();
+
+  /**
+   * Returns a new object of class '<em>Parenthesis</em>'.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @return a new object of class '<em>Parenthesis</em>'.
+   * @generated
+   */
+  Parenthesis createParenthesis();
 
   /**
    * Returns a new object of class '<em>Variable Use</em>'.
@@ -105,22 +114,13 @@ public interface MathFactory extends EFactory
   Minus createMinus();
 
   /**
-   * Returns a new object of class '<em>Mult</em>'.
+   * Returns a new object of class '<em>Term</em>'.
    * <!-- begin-user-doc -->
    * <!-- end-user-doc -->
-   * @return a new object of class '<em>Mult</em>'.
+   * @return a new object of class '<em>Term</em>'.
    * @generated
    */
-  Mult createMult();
-
-  /**
-   * Returns a new object of class '<em>Div</em>'.
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
-   * @return a new object of class '<em>Div</em>'.
-   * @generated
-   */
-  Div createDiv();
+  Term createTerm();
 
   /**
    * Returns the package supported by this factory.

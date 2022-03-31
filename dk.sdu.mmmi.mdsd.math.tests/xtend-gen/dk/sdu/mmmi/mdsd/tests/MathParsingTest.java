@@ -299,6 +299,7 @@ public class MathParsingTest {
       _builder.newLine();
       final MathExp result = this._parseHelper.parse(_builder);
       final Map<String, Integer> variables = MathGenerator.compute(result);
+      System.out.println("x");
       Assertions.assertEquals(87, variables.get("x"));
     } catch (Throwable _e) {
       throw Exceptions.sneakyThrow(_e);

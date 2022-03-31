@@ -195,6 +195,7 @@ class MathParsingTest {
 			var x = let y=10*8 in y+7 end
 		'''.parse
 		val variables = result.compute
+		System.out.println("x")
 		Assertions.assertEquals(87, variables.get("x"))
 	}
 	

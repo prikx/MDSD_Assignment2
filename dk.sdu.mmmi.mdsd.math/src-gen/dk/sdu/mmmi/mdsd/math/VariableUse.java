@@ -20,19 +20,19 @@ package dk.sdu.mmmi.mdsd.math;
  * @model
  * @generated
  */
-public interface VariableUse extends Primary
+public interface VariableUse extends Exp
 {
   /**
    * Returns the value of the '<em><b>Ref</b></em>' reference.
    * <!-- begin-user-doc -->
    * <!-- end-user-doc -->
    * @return the value of the '<em>Ref</em>' reference.
-   * @see #setRef(MathExp)
+   * @see #setRef(Statement)
    * @see dk.sdu.mmmi.mdsd.math.MathPackage#getVariableUse_Ref()
    * @model
    * @generated
    */
-  MathExp getRef();
+  Statement getRef();
 
   /**
    * Sets the value of the '{@link dk.sdu.mmmi.mdsd.math.VariableUse#getRef <em>Ref</em>}' reference.
@@ -42,6 +42,6 @@ public interface VariableUse extends Primary
    * @see #getRef()
    * @generated
    */
-  void setRef(MathExp value);
+  void setRef(Statement value);
 
 } // VariableUse

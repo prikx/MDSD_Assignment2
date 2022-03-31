@@ -3,13 +3,16 @@
  */
 package dk.sdu.mmmi.mdsd.generator
 
-import dk.sdu.mmmi.mdsd.math.Div
+import dk.sdu.mmmi.mdsd.math.Term
 import dk.sdu.mmmi.mdsd.math.Exp
-import dk.sdu.mmmi.mdsd.math.MathExp
 import dk.sdu.mmmi.mdsd.math.Minus
-import dk.sdu.mmmi.mdsd.math.Mult
 import dk.sdu.mmmi.mdsd.math.Plus
 import dk.sdu.mmmi.mdsd.math.Primary
+import dk.sdu.mmmi.mdsd.math.Number
+import dk.sdu.mmmi.mdsd.math.MathExp
+import dk.sdu.mmmi.mdsd.math.Let
+import dk.sdu.mmmi.mdsd.math.VariableUse
+import dk.sdu.mmmi.mdsd.math.Parenthesis
 import java.util.HashMap
 import java.util.Map
 import javax.swing.JOptionPane
@@ -30,36 +33,70 @@ class MathGenerator extends AbstractGenerator {
 	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
 		val math = resource.allContents.filter(MathExp).next
 		val result = math.compute
-		
-		// You can replace with hovering, see Bettini Chapter 8
 		result.displayPanel
 	}
+
+
 	
-	//
-	// Compute function: computes value of expression
-	// Note: written according to illegal left-recursive grammar, requires fix
-	//
-	
-	def static compute(MathExp math) { 
-		math.exp.computeExp
+	def static compute(MathExp mathExp) {
+		for (variable : mathExp.math) {
+			variables.put(variable.name, variable.exp.computeExp)
+		}
 		return variables
 	}
 	
-	def static int computeExp(Exp exp) {
-		val left = exp.left.computePrim
-		switch exp.operator {
-			Plus: left+exp.right.computeExp
-			Minus: left-exp.right.computeExp
-			Mult: left*exp.right.computeExp
-			Div: left/exp.right.computeExp
-			default: left
+	
+	/**
+
+	def static compute(MathExp e) {
+		variables.put(e.name, e.exp.computeExp)
+		return variables
+	}
+	*/
+	
+	
+	def static int computeExp(Exp e){
+		switch e {
+			
+			VariableUse:{
+				(e as VariableUse).ref.exp.computeExp
+			}
+			
+			Minus:{
+				(e.left.computeExp as Integer) - (e.right.computeExp as Integer)
+				
+			}
+			
+			Plus: {
+				(e.left.computeExp as Integer) + (e.right.computeExp as Integer)
+			}
+			
+			Term: {
+				val left = e.left.computeExp as Integer
+				val right = e.right.computeExp as Integer
+				if (e.op == '*')
+					left * right
+				else
+					left / right
+			}
+			
+			Number:{
+				(e as Number).value
+			}
+			
+			Let:{
+				variables.put((e as Let).name, (e as Let).inExp.computeExp)
+				(e as Let).letExp.computeExp
+			}
+			
+			Parenthesis:{
+				e.exp.computeExp
+			}
+
+			default: (e as Number).value
 		}
 	}
 	
-	def static int computePrim(Primary factor) { 
-		87
-	}
-
 	def void displayPanel(Map<String, Integer> result) {
 		var resultString = ""
 		for (entry : result.entrySet()) {
